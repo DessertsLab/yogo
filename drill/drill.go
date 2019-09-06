@@ -29,6 +29,7 @@ type Rule []json.RawMessage
 
 type mapRule map[string]Rule
 
+// rawtype return raw datatype of Data
 func (d Data) rawtype() string {
 	if len(d.raw) == 0 {
 		return "empty"
@@ -139,7 +140,7 @@ func drill(data Data, rule Rule) string {
 	return res
 }
 
-//Flatten flat the json struct to mapstring
+//FlattenByRule flat the json struct to mapstring
 func (d Data) FlattenByRule(rule ...[]byte) map[string]string {
 	if len(rule) == 0 {
 		fmt.Println("todo: auto flatten with no rules")
@@ -157,13 +158,11 @@ func (d Data) FlattenByRule(rule ...[]byte) map[string]string {
 	return row
 }
 
-// Get read filePath of json data and return Data
-func GetJson(b []byte) Data {
+// GetJSON bytes array of json string and  return Data type
+func GetJSON(b []byte) Data {
 	return Data{b}
 }
 
-//func main() {
-//	s := GetJson("../private/xy.json").FlattenByRule("../data/drillrules/r4.json")
-//	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^")
-//	fmt.Println(s)
-//}
+/*
+
+*/
