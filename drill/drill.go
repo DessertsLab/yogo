@@ -24,7 +24,7 @@ type Data struct {
 	raw []byte
 }
 
-// Rule...
+// Rule ...
 type Rule []json.RawMessage
 
 type mapRule map[string]Rule
@@ -44,6 +44,7 @@ func (d Data) rawtype() string {
 	}
 }
 
+// reduce Data to subset Data
 func (d *Data) reduce(r []byte) {
 	var val string
 	json.Unmarshal(r, &val)
@@ -62,6 +63,7 @@ func (d *Data) get(key string) Data {
 		json.Unmarshal(d.raw, &mr)
 		if mr[key] == nil {
 			fmt.Println(key, "could not found in data")
+			return Data{[]byte("")}
 		}
 		return Data{mr[key]}
 	}
@@ -165,4 +167,4 @@ func GetJSON(b []byte) Data {
 
 /*
 
-*/
+ */

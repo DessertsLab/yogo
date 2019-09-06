@@ -1,6 +1,7 @@
 package drill
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -108,6 +109,7 @@ func TestData_rawtype(t *testing.T) {
 		{"case2", fields{[]byte(case2str)}, "map"},
 		{"case3", fields{[]byte(case3str)}, "string"},
 		{"case4", fields{[]byte(case4str)}, "list"},
+		{"case5", fields{[]byte("")}, "empty"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -116,6 +118,67 @@ func TestData_rawtype(t *testing.T) {
 			}
 			if got := d.rawtype(); got != tt.want {
 				t.Errorf("Data.rawtype() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestData_reduce(t *testing.T) {
+	type fields struct {
+		raw []byte
+	}
+	type args struct {
+		r []byte
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Data
+	}{
+		{"case1", fields{[]byte(`{"hello":"world"}`)}, args{[]byte(`"hello"`)}, Data{[]byte(`"world"`)}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := Data{
+				raw: tt.fields.raw,
+			}
+			fmt.Println(tt.args.r)
+			d.reduce(tt.args.r)
+			if !reflect.DeepEqual(d, tt.want) {
+				t.Errorf("after reduce data =  %v, but want %v", d, tt.want)
+			}
+		})
+	}
+}
+
+func TestData_get(t *testing.T) {
+	type fields struct {
+		raw []byte
+	}
+	type args struct {
+		key string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Data
+	}{
+		// TODO: Add test cases.
+		{"case1", fields{[]byte(`{"hello":"world"}`)}, args{"hello"}, Data{[]byte(`"world"`)}},
+		{"case2", fields{[]byte(`"互联网金融门户:1"`)}, args{"互联网金融门户.*"}, Data{[]byte(`互联网金融门户:1"`)}},
+		{"case3", fields{[]byte(`互联网金融门户:1`)}, args{"\\d+$"}, Data{[]byte(`1`)}},
+		{"case4", fields{[]byte("")}, args{"\\d+$"}, Data{[]byte(``)}},
+		{"case5", fields{[]byte(`{"hello":"world"}`)}, args{"notthere"}, Data{[]byte("")}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Data{
+				raw: tt.fields.raw,
+			}
+			if got := d.get(tt.args.key); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Data.get() = %v, want %v", got, tt.want)
 			}
 		})
 	}
