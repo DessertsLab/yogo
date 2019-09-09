@@ -6,32 +6,39 @@ import (
 	"testing"
 )
 
-func TestData_FlattenByRule(t *testing.T) {
-	type fields struct {
-		raw []byte
-	}
-	type args struct {
-		rule [][]byte
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   map[string]string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			d := Data{
-				raw: tt.fields.raw,
-			}
-			if got := d.FlattenByRule(tt.args.rule...); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Data.FlattenByRule() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+var DATAJSON1 = `{
+    "code": "200",
+    "data": {
+        "ISPNUM": {
+            "province": "湖北",
+            "city": "武汉",
+            "isp": "移动"
+        },
+        "RSL": [
+            {
+                "RS": {
+                    "code": "0",
+                    "desc": "三维验证一致"
+                },
+                "IFT": "B7"
+            }
+        ],
+        "ECL": [
+            {
+                "code": "10000004",
+                "IFT": "A3"
+            }
+        ]
+    },
+    "msg": "成功"
+}`
+
+var RULEJSON1 = `
+{
+	"msg":["msg"],
+ 	"prov":["data","ISPNUM","province"]
 }
+`
 
 func TestGetJSON(t *testing.T) {
 	type args struct {
@@ -165,8 +172,8 @@ func TestData_get(t *testing.T) {
 		args   args
 		want   Data
 	}{
-		// TODO: Add test cases.
 		{"case1", fields{[]byte(`{"hello":"world"}`)}, args{"hello"}, Data{[]byte(`"world"`)}},
+		// FIXME: there is a quote at the end
 		{"case2", fields{[]byte(`"互联网金融门户:1"`)}, args{"互联网金融门户.*"}, Data{[]byte(`互联网金融门户:1"`)}},
 		{"case3", fields{[]byte(`互联网金融门户:1`)}, args{"\\d+$"}, Data{[]byte(`1`)}},
 		{"case4", fields{[]byte("")}, args{"\\d+$"}, Data{[]byte(``)}},
@@ -179,6 +186,64 @@ func TestData_get(t *testing.T) {
 			}
 			if got := d.get(tt.args.key); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Data.get() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestData_FlattenByRule(t *testing.T) {
+	type fields struct {
+		raw []byte
+	}
+	type args struct {
+		rule [][]byte
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   map[string]string
+	}{
+		// TODO: Add test cases.
+		{"case1_rulejson1", fields{[]byte(DATAJSON1)}, args{[][]byte{[]byte(RULEJSON1)}}, map[string]string{"msg": "成功", "prov": "湖北"}},
+		{"case2_norule", fields{[]byte(DATAJSON1)}, args{}, map[string]string{"empty": ""}},
+		{"case3_emptyrule", fields{[]byte(DATAJSON1)}, args{[][]byte{}}, map[string]string{"empty": ""}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := Data{
+				raw: tt.fields.raw,
+			}
+			if got := d.FlattenByRule(tt.args.rule...); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Data.FlattenByRule() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestData_search(t *testing.T) {
+	type fields struct {
+		raw []byte
+	}
+	type args struct {
+		keyvalue []byte
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Data
+	}{
+		// TODO: Add test cases.
+		{"case1", fields{[]byte(DATAJSON1)}, args{[]byte(`["platform_detail", "GETLIST", "银行小微贷款.*"]`)}, Data{[]byte(``)}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Data{
+				raw: tt.fields.raw,
+			}
+			if got := d.search(tt.args.keyvalue); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Data.search() = %v, want %v", got, tt.want)
 			}
 		})
 	}

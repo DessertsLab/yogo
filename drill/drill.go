@@ -145,7 +145,8 @@ func drill(data Data, rule Rule) string {
 //FlattenByRule flat the json struct to mapstring
 func (d Data) FlattenByRule(rule ...[]byte) map[string]string {
 	if len(rule) == 0 {
-		fmt.Println("todo: auto flatten with no rules")
+		//TODO: auto flatten with no rules
+		// fmt.Println("todo: auto flatten with no rules")
 		return map[string]string{"empty": ""}
 	}
 	row := map[string]string{}
