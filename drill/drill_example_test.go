@@ -2,6 +2,8 @@ package drill
 
 import (
 	"fmt"
+
+	"github.com/tidwall/gjson"
 )
 
 func Example() {
@@ -57,15 +59,47 @@ func Example() {
 }
     `
 
-	res := GetJSON([]byte(report)).FlattenByRule([]byte(rule))
+	gjexp := `{
+    "name": {
+        "first": "Tom",
+        "last": "Anderson"
+    },
+    "age": 37,
+    "children": ["Sara", "Alex", "Jack"],
+    "fav.movie": "Deer Hunter",
+    "friends": [{
+            "first": "Dale",
+            "last": "Murphy",
+            "age": 44,
+            "nets": ["ig", "fb", "tw"]
+        },
+        {
+            "first": "Roger",
+            "last": "Craig",
+            "age": 68,
+            "nets": ["fb", "tw"]
+        },
+        {
+            "first": "Jane",
+            "last": "Murphy",
+            "age": 47,
+            "nets": ["ig", "tw"]
+        }
+    ]
+}`
 
+	res := GetJSON([]byte(report)).FlattenByRule([]byte(rule))
 	res2 := GetJSON([]byte(s)).FlattenByRule([]byte(rule2))
+	res4 := gjson.Get(gjexp, "friends.2.nets.0")
+
 	fmt.Println(res["msg"])
 	fmt.Println(res["prov"])
 	fmt.Println(res2)
+	fmt.Println(res4)
 	// Output:
 	// 成功
 	// 湖北
 	// map[col1: col2:eeee col3: col4:]
+	// ig
 
 }
