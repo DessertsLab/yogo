@@ -1,12 +1,10 @@
-package main
+package drill
 
 import (
 	"fmt"
-
-	"github.com/DessertsLab/yogo/drill"
 )
 
-func main() {
+func Example() {
 	report := `{
     "code": "200",
     "data": {
@@ -59,11 +57,15 @@ func main() {
 }
     `
 
-	res := drill.GetJSON([]byte(report)).FlattenByRule([]byte(rule))
+	res := GetJSON([]byte(report)).FlattenByRule([]byte(rule))
+
+	res2 := GetJSON([]byte(s)).FlattenByRule([]byte(rule2))
 	fmt.Println(res["msg"])
 	fmt.Println(res["prov"])
-
-	res2 := drill.GetJSON([]byte(s)).FlattenByRule([]byte(rule2))
 	fmt.Println(res2)
+	// Output:
+	// 成功
+	// 湖北
+	// map[col1: col2:eeee col3: col4:]
 
 }

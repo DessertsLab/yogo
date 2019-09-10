@@ -2,7 +2,6 @@ package drill
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 )
 
@@ -62,7 +61,7 @@ func (d *Data) get(key string) Data {
 		mr := mapRaw{}
 		json.Unmarshal(d.raw, &mr)
 		if mr[key] == nil {
-			fmt.Println(key, "could not found in data")
+			// fmt.Println(key, "could not found in data")
 			return Data{[]byte("")}
 		}
 		return Data{mr[key]}
