@@ -42,25 +42,11 @@ func main() {
         `
 
 	s := `{
-    "key": {
-        "list": [{
-            "one": 1,
-            "qq": "2244"
-        }, {
-            "two": 2,
-            "qq": "e32444"
-        }],
-        "list2": [{
-            "three": 3,
-            "qq": "44455"
-        }],
-        "list3": [
+    "key": [
             "one eggs on the desk: 1",
             "two eggs on the desk: 2",
             "one eggs on the desk: 3"
         ],
-        "detail": "feast on your life 345556"
-    },
     "key2": "eeee"
 }`
 

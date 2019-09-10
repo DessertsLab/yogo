@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+var DATAJSON3 = `[{"msg": "成功101"},{"msg": "失败404"}]`
+
 var DATAJSON1 = `{
     "code": "200",
     "data": {
@@ -32,6 +34,12 @@ var DATAJSON1 = `{
     },
     "msg": "成功"
 }`
+
+var DATAJSON2 = `{"list3": [
+            "one eggs on the desk: 1",
+            "two eggs on the desk: 2",
+            "one eggs on the desk: 3"
+        ]}`
 
 var RULEJSON1 = `
 {
@@ -235,7 +243,10 @@ func TestData_search(t *testing.T) {
 		want   Data
 	}{
 		// TODO: Add test cases.
-		{"case1", fields{[]byte(DATAJSON1)}, args{[]byte(`["platform_detail", "GETLIST", "银行小微贷款.*"]`)}, Data{[]byte(``)}},
+		{"case1", fields{[]byte(DATAJSON2)}, args{[]byte(`["list3", "GETLIST", "one eggs on the desk.*"]`)}, Data{[]byte(`one eggs on the desk: 1`)}},
+		{"case2", fields{[]byte(DATAJSON3)}, args{[]byte(`["msg", "CONTAINS", "成功"]`)}, Data{[]byte(`{"msg": "成功101"}`)}},
+		{"case3", fields{[]byte(DATAJSON3)}, args{[]byte(`["msg", "失败404"]`)}, Data{[]byte(`{"msg": "失败404"}`)}},
+		{"case4", fields{[]byte(DATAJSON3)}, args{[]byte(`["msg"]`)}, Data{}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -243,7 +254,31 @@ func TestData_search(t *testing.T) {
 				raw: tt.fields.raw,
 			}
 			if got := d.search(tt.args.keyvalue); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Data.search() = %v, want %v", got, tt.want)
+				t.Errorf("Data.search() = %v, want %v", string(got.raw[:]), string(tt.want.raw[:]))
+			}
+		})
+	}
+}
+
+func Test_drill(t *testing.T) {
+	type args struct {
+		data Data
+		rule Rule
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"case1", args{Data{[]byte(DATAJSON1)}, Rule{[]byte(`"code"`)}}, `200`},
+		{"case2", args{Data{[]byte(`"find the number: 101"`)}, Rule{[]byte(`".*"`)}}, `"find the number: 101"`},
+		{"case3", args{Data{[]byte(DATAJSON3)}, Rule{[]byte(`["msg","CONTAINS","101"]`)}}, ``},
+		{"case4", args{Data{[]byte(DATAJSON3)}, Rule{[]byte(`?"msg","CONTAINS","101"]`)}}, ``},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := drill(tt.args.data, tt.args.rule); got != tt.want {
+				t.Errorf("drill() = %v, want %v", got, tt.want)
 			}
 		})
 	}

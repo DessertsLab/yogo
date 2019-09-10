@@ -111,6 +111,7 @@ func (d *Data) search(keyvalue []byte) Data {
 }
 
 func drill(data Data, rule Rule) string {
+
 	for _, ruleItem := range rule {
 		firstChar := string(ruleItem)[0]
 		switch firstChar {
@@ -155,7 +156,6 @@ func (d Data) FlattenByRule(rule ...[]byte) map[string]string {
 	json.Unmarshal(rule[0], &mr)
 
 	for colName, singleRule := range mr {
-		// fmt.Println("drilling -------->" + colName)
 		row[colName] = drill(d, singleRule)
 	}
 	return row
